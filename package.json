@@ -1,0 +1,15 @@
+{
+  "name": "tcpfilemover",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "bt7s7k7",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^13.7.7",
+    "typescript": "^3.8.2"
+  }
+}
