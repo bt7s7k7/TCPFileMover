@@ -36,7 +36,7 @@ interf.question("Listen or transmit (l/t): ", answer=>{
                         if (err) throw err
                         files.forEach(v=>{
                             readFile(v, (err, data)=>{
-                                if (err) console.log(err.name)
+                                if (err) return
                                 var toSend = new Buffer(data.length + 255)
                                 toSend.slice(0, 255).write(v)
                                 data.copy(toSend, 255)
