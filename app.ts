@@ -6,6 +6,8 @@ import { AddressInfo } from "net"
 
 var interf = createInterface(process.stdin, process.stdout)
 
+var processingFiles = [] as string[]
+
 interf.question("Listen or transmit (l/t): ", answer => {
     if (answer == "l") {
 
@@ -54,6 +56,8 @@ interf.question("Listen or transmit (l/t): ", answer => {
                     readdir(".", (err, files) => {
                         if (err) throw err
                         files.forEach(v => {
+                            if (processingFiles.indexOf(v) == -1) processingFiles.push(v)
+                            else return
                             readFile(v, (err, data) => {
                                 if (err) return
                                 var toSend = Buffer.alloc(data.length + 255)
@@ -63,7 +67,9 @@ interf.question("Listen or transmit (l/t): ", answer => {
                                     if (err) throw err
                                     console.log(`Sent file ${v}`)
                                     unlink(v, (err) => {
-                                        if (err) throw err
+                                        if (err) console.error(err.message)
+                                        var index = processingFiles.indexOf(v)
+                                        if (index != -1) processingFiles.splice(index, 1)
                                     })
                                 })
                             })
