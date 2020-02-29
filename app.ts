@@ -58,20 +58,37 @@ interf.question("Listen or transmit (l/t): ", answer => {
                         files.forEach(v => {
                             if (processingFiles.indexOf(v) == -1) processingFiles.push(v)
                             else return
-                            readFile(v, (err, data) => {
-                                if (err) return
-                                var toSend = Buffer.alloc(data.length + 255)
-                                toSend.slice(0, 255).write(v)
-                                data.copy(toSend, 255)
-                                connection.send(toSend, (err) => {
-                                    if (err) throw err
-                                    console.log(`Sent file ${v}`)
-                                    unlink(v, (err) => {
-                                        if (err) console.error(err.message)
-                                        var index = processingFiles.indexOf(v)
-                                        if (index != -1) processingFiles.splice(index, 1)
+                            stat(v, (err, stats) => {
+                                if (err) {
+                                    var index = processingFiles.indexOf(v)
+                                    if (index != -1) processingFiles.splice(index, 1)
+                                    return
+                                }
+                                if (Date.now() - stats.birthtimeMs > 1000) {
+                                    readFile(v, (err, data) => {
+                                        if (err) {
+                                            var index = processingFiles.indexOf(v)
+                                            if (index != -1) processingFiles.splice(index, 1)
+                                            return
+                                        }
+                                        var toSend = Buffer.alloc(data.length + 255)
+                                        toSend.slice(0, 255).write(v)
+                                        data.copy(toSend, 255)
+                                        connection.send(toSend, (err) => {
+                                            if (err) throw err
+                                            console.log(`Sent file ${v}`)
+                                            unlink(v, (err) => {
+                                                if (err) console.error(err.message)
+                                                var index = processingFiles.indexOf(v)
+                                                if (index != -1) processingFiles.splice(index, 1)
+                                            })
+                                        })
                                     })
-                                })
+                                } else {
+                                    var index = processingFiles.indexOf(v)
+                                    if (index != -1) processingFiles.splice(index, 1)
+                                    return
+                                }
                             })
                         })
                     })
